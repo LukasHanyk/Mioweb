@@ -1,0 +1,107 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+}
+
+.container {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    background-color: #fff;
+    padding: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+}
+
+h1 {
+    font-size: 25px;
+    text-align: center;
+    color: #333;
+    margin-top: 15px;
+}
+
+label {
+    display: block;
+    margin-top: 10px;
+    color: #555;
+    font-weight: bold;
+}
+
+input,
+select,
+button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 5px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+button {
+    background-color: #4CAF50;
+    color: white;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+.result {
+    display: none;
+    border: 1px solid #ccc;
+    margin-top: 20px;
+    background-color: #eef;
+    padding: 15px;
+    border-radius: 4px;
+}
+
+.result p {
+    margin: 10px 0;
+}
+
+.error {
+    color: red;
+    font-size: 12px;
+}
+
+/* Stylování pro větší obrazovky (například tablety) */
+@media (min-width: 600px) {
+    h1 {
+        font-size: 30px;
+    }
+
+    .container {
+        max-width: 600px;
+        padding: 30px;
+        border-radius: 8px;
+    }
+
+    input,
+    select,
+    button {
+        font-size: 16px;
+    }
+}
+
+/* Stylování pro ještě větší obrazovky (například desktop) */
+@media (min-width: 1024px) {
+    h1 {
+        font-size: 35px;
+    }
+
+    .container {
+        max-width: 800px;
+        padding: 40px;
+    }
+
+    input,
+    select,
+    button {
+        font-size: 18px;
+    }
+}

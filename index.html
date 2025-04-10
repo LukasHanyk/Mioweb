@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Formulář pro objednávku</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Objednávkový formulář</h1>
+    <form id="orderForm">
+      <label for="firstName">Jméno:</label>
+      <input type="text" id="firstName" required />
+
+      <label for="lastName">Příjmení:</label>
+      <input type="text" id="lastName" required />
+
+      <label for="phone">Telefon:</label>
+      <input type="tel" id="phone" pattern="^[0-9]{9}$" required />
+      <span class="error" id="phoneError"></span>
+
+      <label for="email">E-mail:</label>
+      <input type="email" id="email" required />
+
+      <label for="product">Produkt:</label>
+      <input type="text" id="product" required />
+
+      <label for="quantity">Počet kusů:</label>
+      <input type="number" id="quantity" min="1" required />
+
+      <label for="price">Cena za kus bez DPH (v CZK):</label>
+      <input type="number" id="price" min="1" required />
+
+      <label for="currency">Měna:</label>
+      <select id="currency" required>
+        <option value="">Vyberte měnu</option>
+        <option value="EUR">EUR</option>
+        <option value="USD">USD</option>
+        <option value="GBP">GBP</option>
+      </select>
+
+      <button type="submit">Odeslat</button>
+    </form>
+
+    <div class="result" id="recap">
+      <h3>Rekapitulace objednávky</h3>
+      <p><strong>Jméno a příjmení:</strong> <span id="fullName"></span></p>
+      <p><strong>Telefon:</strong> <span id="phoneRecap"></span></p>
+      <p><strong>E-mail:</strong> <span id="emailRecap"></span></p>
+      <p><strong>Produkt:</strong> <span id="productRecap"></span></p>
+      <p><strong>Počet kusů:</strong> <span id="quantityRecap"></span></p>
+      <p><strong>Cena za kus bez DPH (CZK):</strong> <span id="priceRecap"></span></p>
+      <p><strong>Cena celkem bez DPH (CZK):</strong> <span id="totalPriceCZK"></span></p>
+      <p><strong>DPH (21%):</strong> <span id="taxPrice"></span></p>
+      <p><strong>Cena celkem s DPH (CZK):</strong> <span id="totalPriceWithTax"></span></p>
+      <p><strong>Cena v měně:</strong> <span id="convertedPrice"></span></p>
+      <p><strong>Aktuální kurz:</strong> <span id="exchangeRate"></span></p>
+    </div>
+  </div>
+
+  <script>
+    let formSubmitted = false;
+
+    function formatNumber(num) {
+      return Number(num).toLocaleString("cs-CZ", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
+
+    async function getExchangeRate(currency) {
+      if (currency === "CZK") return 1;
+
+      const proxyUrl = "https://api.allorigins.win/raw?url=";
+      const cnbUrl = "https://www.cnb.cz/en/financial_markets/foreign_exchange_market/exchange_rate_fixing/daily.txt";
+
+      const response = await fetch(proxyUrl + encodeURIComponent(cnbUrl));
+      const text = await response.text();
+      const lines = text.split("\n");
+
+      for (const line of lines) {
+        const parts = line.split("|");
+        if (parts.length === 5 && parts[3] === currency) {
+          return parseFloat(parts[4].replace(",", "."));
+        }
+      }
+
+      return 1;
+    }
+
+    async function updateRecap() {
+      if (!formSubmitted) return;
+
+      const quantity = parseInt(document.getElementById("quantity").value);
+      const price = parseFloat(document.getElementById("price").value);
+      const currency = document.getElementById("currency").value;
+
+      const totalPriceCZK = quantity * price;
+      const tax = totalPriceCZK * 0.21;
+      const totalWithTax = totalPriceCZK + tax;
+      const exchangeRate = await getExchangeRate(currency);
+      const converted = totalWithTax / exchangeRate;
+
+      document.getElementById("totalPriceCZK").innerText = formatNumber(totalPriceCZK) + " CZK";
+      document.getElementById("taxPrice").innerText = formatNumber(tax) + " CZK";
+      document.getElementById("totalPriceWithTax").innerText = formatNumber(totalWithTax) + " CZK";
+      document.getElementById("exchangeRate").innerText = formatNumber(exchangeRate);
+      document.getElementById("convertedPrice").innerText = formatNumber(converted) + " " + currency;
+      document.getElementById("priceRecap").innerText = formatNumber(price) + " CZK";
+    }
+
+      document.getElementById("orderForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const phone = document.getElementById("phone").value;
+      if (!/^\d{9}$/.test(phone)) {
+        document.getElementById("phoneError").innerText = "Telefon musí mít 9 číslic.";
+        return;
+      } else {
+        document.getElementById("phoneError").innerText = "";
+      }
+
+      const firstName = document.getElementById("firstName").value;
+      const lastName = document.getElementById("lastName").value;
+      const email = document.getElementById("email").value;
+      const product = document.getElementById("product").value;
+      const quantity = parseInt(document.getElementById("quantity").value);
+
+      formSubmitted = true;
+
+      document.getElementById("fullName").innerText = `${firstName} ${lastName}`;
+      document.getElementById("phoneRecap").innerText = phone;
+      document.getElementById("emailRecap").innerText = email;
+      document.getElementById("productRecap").innerText = product;
+      document.getElementById("quantityRecap").innerText = formatNumber(quantity);
+
+      document.getElementById("recap").style.display = "block";
+
+      await updateRecap();
+    });
+
+    document.getElementById("price").addEventListener("input", updateRecap);
+    document.getElementById("currency").addEventListener("change", updateRecap);
+  </script>
+</body>
+</html>
