@@ -40,6 +40,7 @@ async function updateRecap() {
   const exchangeRate = await getExchangeRate(currency);
   const converted = totalWithTax / exchangeRate;
 
+  document.getElementById("quantityRecap").innerText = formatNumber(quantity);
   document.getElementById("totalPriceCZK").innerText = formatNumber(totalPriceCZK) + " CZK";
   document.getElementById("taxPrice").innerText = formatNumber(tax) + " CZK";
   document.getElementById("totalPriceWithTax").innerText = formatNumber(totalWithTax) + " CZK";
