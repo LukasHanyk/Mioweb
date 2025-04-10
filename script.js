@@ -79,4 +79,5 @@ async function updateRecap() {
 });
 
 document.getElementById("price").addEventListener("input", updateRecap);
+document.getElementById("quantity").addEventListener("input", updateRecap);
 document.getElementById("currency").addEventListener("change", updateRecap);
